@@ -12,7 +12,7 @@ data = pd.read_csv(file_path)
 
 
 if "SMILES" not in data.columns:
-    raise ValueError("数据集中未找到 'SMILES' 列，请确认文件格式。")
+    raise ValueError("The 'SMILES' column was not found in the dataset, please confirm the file format.")
 
 morgan_descriptors = []
 
@@ -39,10 +39,10 @@ moragn_descriptors = pd.read_csv("Morgan.csv")
 X_moragn = moragn_descriptors.drop(columns=['Name', 'SMILES'], errors='ignore')  # 移除非描述符列
 
 
-scaler = joblib.load("scaler_morgan_svm.pkl")  
+scaler = joblib.load("Morgan_svm_scaler.pkl")  
 
 
-best_svc = joblib.load("svm_morgan_model.pkl")
+best_svc = joblib.load("Morgan_svm_model.pkl")
 
 train_features = scaler.feature_names_in_  
 
@@ -67,34 +67,28 @@ moragn_descriptors['Probability'] = svm_probabilities
 moragn_descriptors.to_csv("svm_predictions.csv", index=False)
 
 
-
-if 'SMILES' not in data.columns:
-    raise ValueError("DataFrame中找不到SMILES列！请确保列名正确。")
-
-
-def get_fp2_bits(smiles):
-    """根据SMILES字符串生成FP2指纹并转化为一个二进制向量"""
+def get_RDKfp_bits(smiles):
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         return None
-    fp2 = RDKFingerprint(mol)
+    RDKfp = RDKFingerprint(mol)
     return list(fp2)
 
 
-fp2_bits = data['SMILES'].apply(get_fp2_bits)
+RDKfp_bits = data['SMILES'].apply(get_RDKfp_bits)
 
 
-max_len = max(fp2_bits.apply(len))
-fp2_bits_padded = fp2_bits.apply(lambda x: x + [0] * (max_len - len(x)) if x is not None else [0] * max_len)
+max_len = max(RDKfp_bits.apply(len))
+RDKfp_bits_padded = RDKfp_bits.apply(lambda x: x + [0] * (max_len - len(x)) if x is not None else [0] * max_len)
 
-fp2_df = pd.DataFrame(fp2_bits_padded.tolist(), columns=[f'FP2_{i}' for i in range(max_len)])
+RDKfp_df = pd.DataFrame(RDKfp_bits_padded.tolist(), columns=[f'RDKfp_{i}' for i in range(max_len)])
 
 
-df_with_fp2 = pd.concat([data, fp2_df], axis=1)
+df_with_RDKfp = pd.concat([data, RDKfp_df], axis=1)
 
 
 output_file = 'RDKfp.csv' 
-df_with_fp2.to_csv(output_file, index=False)
+df_with_RDKfp.to_csv(output_file, index=False)
 
 
 RDKfp_descriptors = pd.read_csv("RDKfp.csv")
@@ -103,10 +97,10 @@ RDKfp_descriptors = pd.read_csv("RDKfp.csv")
 X_RDKfp = RDKfp_descriptors.drop(columns=['Name', 'SMILES'], errors='ignore')  # 移除非描述符列
 
 
-scaler = joblib.load("scaler_RDKfp_rf.pkl") 
+scaler = joblib.load("RDKfp_RF_scaler.pkl") 
 
 
-best_rf_model = joblib.load("rf_RDKfp_model.pkl")
+best_rf_model = joblib.load("RDKfp_RF_model.pkl")
 
 
 train_features = scaler.feature_names_in_  # 从 scaler 提取训练时的特征名
@@ -127,8 +121,6 @@ RDKfp_descriptors['Probability'] = RF_probabilities
 RDKfp_descriptors.to_csv("RF_predictions.csv", index=False)
 
 smiles = data['SMILES']
-
-
 with open('molecules.smi', 'w') as f:
     for smile in smiles:
         f.write(smile + '\n')
@@ -163,9 +155,9 @@ paDEL_descriptors.to_csv(output_file_with_descriptors, index=False)
 PaDEL_descriptors = pd.read_csv("PaDEL.csv")
 
 X_PaDEL = PaDEL_descriptors.drop(columns=['Name', 'SMILES'], errors='ignore') 
-scaler = joblib.load("scaler_padel_xgboost.pkl")  
+scaler = joblib.load("PaDEL_xgboost_scaler.pkl")  
 
-best_xgb = joblib.load("xgboost_padel_model.pkl")
+best_xgb = joblib.load("PaDEL_xgboost_model.pkl")
 
 train_features = scaler.feature_names_in_  
 
