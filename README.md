@@ -1,4 +1,4 @@
-# Ensemble--β2AR
+# Ensemble beta2AR predictor
 The machine learning-based screening model for β2AR agonists.
 
 This project requires the following Python libraries and their specific versions:
