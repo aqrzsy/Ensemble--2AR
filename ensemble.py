@@ -84,7 +84,7 @@ with open('molecules.smi', 'w') as f:
     for smile in smiles:
         f.write(smile + '\n')
 
-padel_jar_path = '/Users/zhangsiyao/PycharmProjects/pythonProject/venv/lib/python3.11/site-packages/padelpy/PaDEL-Descriptor/PaDEL-Descriptor.jar'  # Replace this with the actual path to PaDEL-Descriptor.jar
+padel_jar_path = '/path/to/PaDEL-Descriptor.jar'  # Replace this with the actual path to PaDEL-Descriptor.jar
 input_file = 'molecules.smi'
 output_file = 'PaDEL_descriptors.csv'
 command = f'java -jar "{padel_jar_path}" -dir "{input_file}" -file "{output_file}" -2d'
